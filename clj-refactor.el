@@ -286,6 +286,10 @@ if it appears to be unused."
   :group 'cljr
   :type 'hook)
 
+(defcustom cljr-middleware-ignore-paths nil
+  "List of (Java style) regexes to paths that should be ignored
+  by the middleware.")
+
 ;;; Buffer Local Declarations
 
 ;; tracking state of find-symbol buffer
@@ -2484,6 +2488,7 @@ See: https://github.com/clojure-emacs/clj-refactor.el/wiki/cljr-promote-function
                             "line" line
                             "column" column
                             "name" symbol
+                            "ignore-paths" cljr-middleware-ignore-paths
                             "ignore-errors"
                             (when (or cljr-find-usages-ignore-analyzer-errors cljr-ignore-analyzer-errors) "true"))))
     (with-current-buffer (cider-current-repl-buffer)
