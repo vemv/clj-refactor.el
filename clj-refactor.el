@@ -2203,11 +2203,16 @@ before non-empty. This lets 1.7.0 be sorted above 1.7.0-RC1."
 
 If CHOICES is provided provide a completed read among the
 possible choices. If the choice is trivial, return it."
-  (if choices
-      (if (= (length choices) 1)
-          (cl-first choices)
-        (completing-read prompt choices nil nil nil nil (car choices)))
-    (read-from-minibuffer prompt)))
+  (let* ((choices (mapcar (lambda (x)
+                            (if (symbolp x)
+                                (symbol-name x)
+                              x))
+                          choices)))
+    (if choices
+        (if (= (length choices) 1)
+            (cl-first choices)
+          (ido-completing-read prompt choices nil nil nil nil (car choices)))
+      (read-from-minibuffer prompt))))
 
 (defun cljr--insert-into-leiningen-dependencies (artifact version)
   (re-search-forward ":dependencies")
