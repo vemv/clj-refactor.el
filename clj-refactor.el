@@ -1101,8 +1101,7 @@ word test in it and whether the file lives under the test/ directory."
   (and file-name (string-match-p "-[^/]+\.clj[sxc]?$" file-name)))
 
 (defun cljr--maybe-replace-dash-in-file-name (file-name)
-  (if (and (cljr--dash-in-file-name-p file-name)
-           (yes-or-no-p "The file name contains dashes. Replace with underscores? "))
+  (if (and (cljr--dash-in-file-name-p file-name))
       (concat (file-name-directory file-name)
               (replace-regexp-in-string "-" "_" (file-name-nondirectory file-name)))
     file-name))
