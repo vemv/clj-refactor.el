@@ -1917,6 +1917,7 @@ the alias in the project."
   (let ((short (thread-last (buffer-substring-no-properties
                              (cljr--point-after 'paredit-backward)
                              (1- (point)))
+                 (string-remove-prefix "^::")
                  (string-remove-prefix "::"))))
     (unless (or (cljr--resolve-alias short)
                 (cljr--js-alias-p short))
