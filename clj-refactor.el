@@ -1027,7 +1027,8 @@ If CLJS? is T we insert in the cljs part of the ns declaration."
                                   (seq-map (lambda (file-name)
                                              (funcall replace-underscore
                                                       (file-name-sans-extension file-name)))
-                                           (directory-files src-dir-name))))))
+                                           (ignore-errors
+                                             (directory-files src-dir-name)))))))
     (when src-ns
       (mapconcat 'identity (append (butlast ns-chunks) (list src-ns)) "."))))
 
