@@ -1029,8 +1029,14 @@ If CLJS? is T we insert in the cljs part of the ns declaration."
                                                       (file-name-sans-extension file-name)))
                                            (ignore-errors
                                              (directory-files src-dir-name)))))))
-    (when src-ns
-      (mapconcat 'identity (append (butlast ns-chunks) (list src-ns)) "."))))
+    (if src-ns
+        (mapconcat 'identity (append (butlast ns-chunks) (list src-ns)) ".")
+      (if (or (s-starts-with? "unit." test-ns)
+              (s-starts-with? "integration." test-ns)
+              (s-starts-with? "functional." test-ns)
+              (s-starts-with? "acceptance." test-ns)
+              (s-starts-with? "generative." test-ns))
+          (s-join "." (rest ns-chunks))))))
 
 (defun cljr--cljs-file-p (&optional buf)
   "Is BUF, or the current buffer, visiting a cljs file?"
@@ -1054,7 +1060,7 @@ If CLJS? is T we insert in the cljs part of the ns declaration."
            (source-ns (cljr--find-source-ns-of-test-ns ns (buffer-file-name))))
       (cljr--insert-in-ns ":require")
       (when source-ns
-        (insert "[" source-ns " :as "
+        (insert "\n   [" source-ns " :as "
                 cljr-clojure-test-namespace-under-test-alias "]"))
       (cljr--insert-in-ns ":require")
       (insert (cond
