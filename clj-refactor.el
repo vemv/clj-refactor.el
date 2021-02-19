@@ -3074,18 +3074,12 @@ See: https://github.com/clojure-emacs/clj-refactor.el/wiki/cljr-extract-function
 See: https://github.com/clojure-emacs/clj-refactor.el/wiki/cljr-add-stubs"
   (interactive)
   (cljr--ensure-op-supported "stubs-for-interface")
-  (let* ((interface (cider-symbol-at-point))
-         (prefix? (cljr--symbol-prefix interface))
-         (alias? (cljr--resolve-alias prefix?))
-         (interface (if (not (string-blank-p prefix?))
-                        (if alias?
-                            (format "%s/%s" alias? (cljr--symbol-suffix interface))
-                          interface)
-                      (format "%s/%s" (cider-current-ns) interface)))
+  ;; https://github.com/clojure-emacs/clj-refactor.el/issues/479
+  (let* ((interface (vemv.clojure-interaction/sync-eval-to-string (cider-symbol-at-point)))
          (functions (parseedn-read-str (cljr--call-middleware-sync
-                               (cljr--create-msg "stubs-for-interface"
-                                                 "interface" interface)
-                               "functions"))))
+                                        (cljr--create-msg "stubs-for-interface"
+                                                          "interface" interface)
+                                        "functions"))))
     (cljr--insert-function-stubs functions)))
 
 (defun cljr--delete-definition (definition)
