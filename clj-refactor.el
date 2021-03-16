@@ -2827,7 +2827,9 @@ to create an alias or refer."
                    (replace-regexp-in-string "_" "-" (format "%s" missing-symbol)) type)
                   (cljr--insert-missing-import missing-symbol)))
           ((eq type :class) (cljr--insert-missing-import missing-symbol))
-          (t (error (format "Unknown type %s" type))))))
+          (t (error (format "Unknown type %s" type))))
+
+    (s-replace-regexp "\\\.$" "" (format "%s/%s" missing-symbol symbol))))
 
 (defun cljr--symbol-suffix (symbol)
   "java.util.Date => Date
@@ -2907,6 +2909,8 @@ itself might be `nil'."
   (when (and cljr-auto-eval-ns-form (cider-connected-p))
     (cider-eval-ns-form)))
 
+(setq cljr-add-missing-libspec--last-msg nil)
+
 ;;;###autoload
 (defun cljr-add-missing-libspec ()
   "Requires or imports the symbol at point.
@@ -2920,10 +2924,13 @@ See: https://github.com/clojure-emacs/clj-refactor.el/wiki/cljr-add-missing-libs
   (let* ((symbol (cider-symbol-at-point))
          (candidates (cljr--call-middleware-to-resolve-missing symbol)))
     (if (and candidates (< 0 (length candidates)))
-        (cljr--add-missing-libspec symbol candidates)
-      (cljr--post-command-message "Can't find %s on classpath" (cljr--symbol-suffix symbol))))
+        (let* ((v (cljr--add-missing-libspec symbol candidates)))
   (cljr--maybe-clean-ns)
-  (cljr--maybe-eval-ns-form))
+          (cljr--maybe-eval-ns-form)
+          (setq cljr-add-missing-libspec--last-msg v)
+          (delay (argless (vemv/echo cljr-add-missing-libspec--last-msg))
+                 0.1))
+      (cljr--post-command-message "Can't find %s on classpath" (cljr--symbol-suffix symbol)))))
 
 (defun cljr--dependency-at-point ()
   "Returns project dependency at point.
